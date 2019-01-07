@@ -1,0 +1,123 @@
+<script>
+  submitbtn.addEventListener('click', writeUserData);
+  document.addEventListener("DOMContentLoaded", event => {
+    departamentosRef = firebase.database().ref('formdata/departamento').orderByKey();
+    departamentosRef.once('value').then(function(departamentos) {
+      departamentos.forEach(function(departamento) {
+        // key will be "ada" the first time and "alan" the second time
+        var key = departamento.key;
+        // childData will be the actual contents of the child
+        var departData = departamento.val();
+        var contadorDepart = departData.contador;
+        console.log("departamento: " + key);
+        var idLabel = getLabelDepart(key);
+        console.log("Label: " + idLabel);
+        var labelDepart = document.getElementById(idLabel);
+        if(contadorDepart == null){
+        	console.log(key + ": " + 0);
+          labelDepart.innerText = 0;
+        } else {
+          console.log(key + ": " + contadorDepart);
+          labelDepart.innerText = contadorDepart;
+        }
+    	});
+    });
+  });
+
+  function getLabelDepart(departamento) {
+    switch(departamento) {
+      case "alta verapaz":
+        return "altav";
+      case "baja verapaz":
+        return "bajav";
+      case "Chimaltenango":
+        return "chimal";
+      case "Chiquimula":
+        return "chiqui";
+      case "El Progreso":
+        return "elprogre";
+      case "Escuintla":
+        return "escuintla";
+      case "guatemala":
+        return "guate";
+      case "Huehuetenango":
+        return "huehue";
+      case "Izabal":
+        return "izabal";
+      case "Jalapa":
+        return "jalapa";
+      case "Jutiapa":
+        return "jutiapa";
+      case "Quetzaltenango":
+        return "quetzal";
+      case "Quiche":
+        return "quiche";
+      case "Retalhuleu":
+        return "retal";
+      case "Sacatepequez":
+        return "sacatep";
+      case "San Marcos":
+        return "sanm";
+      case "Santa Rosa":
+        return "santar";
+      case "Solola":
+        return "solola";
+      case "Suchitepequez":
+        return "suchi";
+      case "Totonicapan":
+        return "toto";
+      case "Zacapa":
+        return "zacapa";
+      default:
+        return departamento;
+    }
+  }
+
+  function writeUserData() {
+    var departamentoOpt = document.getElementById('Departamento-2');
+    var hecho = document.getElementById('hecho').value;
+    var diaOpt = document.getElementById('dia');
+    var mesOpt = document.getElementById('mes');
+    var yearOpt = document.getElementById('dia-2');
+
+		if(departamentoOpt.selectedIndex == 0 || diaOpt.selectedIndex == 0 || mesOpt.selectedIndex == 0 || yearOpt.selectedIndex == 0){
+    	//Some of the values are empty so return
+      return;
+    }
+
+		var departamento = departamentoOpt.value;
+    var dia = diaOpt.value;
+    var mes = mesOpt.value;
+    var year = yearOpt.value;
+		var fecha = year + "/" + mes + "/" + dia;
+
+    console.log(departamento + " " + hecho + " " + fecha);
+    var currentDate = new Date();
+    console.log("created: " + currentDate);
+    firebase.database().ref('formdata/departamento/' + departamento + "/eventos").push({
+		  timestamp: firebase.database.ServerValue.TIMESTAMP,
+      año: year,
+      mes: mes,
+      dia: dia,
+      hecho: hecho
+    });
+
+		increaseCounter(departamento);
+  }
+
+  function increaseCounter(departamento){
+    console.log("Obtaining counter for " + departamento);
+    console.log('formdata/departamento/' + departamento);
+  	// Increment departamento counter by 1.
+    var departamentoRef = firebase.database().ref('formdata/departamento/' + departamento);
+    departamentoRef.transaction(function(dep) {
+      if(dep.contador == null) {
+      	dep.contador = 1;
+      }
+      else {
+      	dep.contador++;
+      }
+      return dep;
+    });
+  }
+</script>
